@@ -11,6 +11,8 @@ import {
   Event as EventIcon,
   Report as ReportIcon,
   Person as PersonIcon,
+  Map as MapIcon,
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 
 const navigationItems = [
@@ -20,14 +22,14 @@ const navigationItems = [
     icon: <HomeIcon />,
   },
   {
-    label: 'Events',
-    value: '/events',
-    icon: <EventIcon />,
+    label: 'Dashboard',
+    value: '/dashboard',
+    icon: <DashboardIcon />,
   },
   {
-    label: 'Report',
-    value: '/report',
-    icon: <ReportIcon />,
+    label: 'Map',
+    value: '/map',
+    icon: <MapIcon />,
   },
   {
     label: 'Profile',

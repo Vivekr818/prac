@@ -17,6 +17,7 @@ import {
   Schedule as TimeIcon,
   People as PeopleIcon,
   Add as AddIcon,
+  Event as EventIcon,
 } from '@mui/icons-material';
 
 // Mock data for events
@@ -92,16 +93,38 @@ export const EventsPage: React.FC = () => {
     // In a real app, this would dispatch an action to join the event
   };
 
+  const handleHostEvent = () => {
+    console.log('Opening host event dialog');
+    // In a real app, this would open a dialog or navigate to create event page
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Community Events
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Join local environmental events and make a difference in your community
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Community Events
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Join local environmental events and make a difference in your community
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<EventIcon />}
+          onClick={handleHostEvent}
+          sx={{
+            backgroundColor: '#4CAF50',
+            '&:hover': { backgroundColor: '#45a049' },
+            borderRadius: 2,
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+          }}
+        >
+          Host Event
+        </Button>
       </Box>
 
       {/* Events Grid */}
@@ -241,10 +264,13 @@ export const EventsPage: React.FC = () => {
       <Fab
         color="primary"
         aria-label="create event"
+        onClick={handleHostEvent}
         sx={{
           position: 'fixed',
           bottom: { xs: 90, md: 20 },
           right: 20,
+          backgroundColor: '#4CAF50',
+          '&:hover': { backgroundColor: '#45a049' },
         }}
       >
         <AddIcon />

@@ -15,6 +15,7 @@ import {
   Notifications as NotificationsIcon,
   Logout as LogoutIcon,
   Settings as SettingsIcon,
+  School as LearnIcon,
 } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { logoutUser } from '../../store/authSlice';
@@ -55,9 +56,9 @@ export const Header: React.FC = () => {
 
         {/* Logo and title */}
         <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-          <Box 
-            sx={{ 
-              display: 'flex', 
+          <Box
+            sx={{
+              display: 'flex',
               alignItems: 'center',
               backgroundColor: '#4CAF50',
               borderRadius: '50%',
@@ -97,8 +98,8 @@ export const Header: React.FC = () => {
 
         {/* Desktop navigation */}
         <Box sx={{ display: { xs: 'none', md: 'flex' }, mr: 2, gap: 1 }}>
-          <Button 
-            sx={{ 
+          <Button
+            sx={{
               color: '#2c3e50',
               textTransform: 'none',
               fontWeight: 500,
@@ -111,8 +112,8 @@ export const Header: React.FC = () => {
           >
             Home
           </Button>
-          <Button 
-            sx={{ 
+          <Button
+            sx={{
               color: '#2c3e50',
               textTransform: 'none',
               fontWeight: 500,
@@ -123,10 +124,10 @@ export const Header: React.FC = () => {
             }}
             href="/dashboard"
           >
-            Dashboard
+            📊 Dashboard
           </Button>
-          <Button 
-            sx={{ 
+          <Button
+            sx={{
               color: '#2c3e50',
               textTransform: 'none',
               fontWeight: 500,
@@ -137,10 +138,39 @@ export const Header: React.FC = () => {
             }}
             href="/events"
           >
-            Cleanup Drives
+            Events
           </Button>
-          <Button 
-            sx={{ 
+          <Button
+            sx={{
+              color: '#2c3e50',
+              textTransform: 'none',
+              fontWeight: 500,
+              px: 2,
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              },
+            }}
+            href="/map"
+          >
+            🗺️ Map
+          </Button>
+
+          <Button
+            sx={{
+              color: '#2c3e50',
+              textTransform: 'none',
+              fontWeight: 500,
+              px: 2,
+              '&:hover': {
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              },
+            }}
+            href="/marketplace"
+          >
+            Marketplace
+          </Button>
+          <Button
+            sx={{
               color: '#2c3e50',
               textTransform: 'none',
               fontWeight: 500,
@@ -151,7 +181,7 @@ export const Header: React.FC = () => {
             }}
             href="/report"
           >
-            Report Issue
+            Report
           </Button>
         </Box>
 
@@ -203,6 +233,10 @@ export const Header: React.FC = () => {
               <MenuItem onClick={() => window.location.href = '/profile'}>
                 <Avatar src={user?.avatar} />
                 Profile
+              </MenuItem>
+              <MenuItem onClick={() => window.location.href = '/learn'}>
+                <LearnIcon sx={{ mr: 2 }} />
+                Learn
               </MenuItem>
               <MenuItem onClick={() => window.location.href = '/settings'}>
                 <SettingsIcon sx={{ mr: 2 }} />

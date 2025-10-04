@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { HomePage } from './pages/HomePage';
 import { AuthPage } from './pages/AuthPage';
 import { EventsPage } from './pages/EventsPage';
@@ -11,19 +12,23 @@ import { ReportPage } from './pages/ReportPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SocialFeedPage } from './pages/SocialFeedPage';
 import { LandingPage } from './pages/LandingPage';
+import { MapPage } from './pages/MapPage';
+import { MarketplacePageSimple as MarketplacePage } from './pages/MarketplacePageSimple';
+import { TestComponent } from './components/common/TestComponent';
 
 function App() {
   return (
-    <Provider store={store}>
-      <Router>
-        <Layout>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <Router>
+          <Layout>
           <Routes>
             {/* Public routes */}
             <Route
               path="/"
               element={
                 <ProtectedRoute requireAuth={false}>
-                  <LandingPage />
+                  <TestComponent />
                 </ProtectedRoute>
               }
             />
@@ -86,10 +91,10 @@ function App() {
               }
             />
             <Route
-              path="/social"
+              path="/learn"
               element={
                 <ProtectedRoute>
-                  <SocialFeedPage />
+                  <div>Learn - Coming Soon</div>
                 </ProtectedRoute>
               }
             />
@@ -98,12 +103,21 @@ function App() {
               element={<LandingPage />}
             />
 
-            {/* Placeholder routes for future pages */}
+            {/* Map page */}
             <Route
               path="/map"
               element={
                 <ProtectedRoute>
-                  <div>Map View - Coming Soon</div>
+                  <MapPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Marketplace page */}
+            <Route
+              path="/marketplace"
+              element={
+                <ProtectedRoute>
+                  <MarketplacePage />
                 </ProtectedRoute>
               }
             />
@@ -139,10 +153,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* Catch-all route for 404 */}
+            <Route
+              path="*"
+              element={
+                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                  <h2>Page Not Found</h2>
+                  <p>The page you're looking for doesn't exist.</p>
+                  <a href="/social">Go to Home</a>
+                </div>
+              }
+            />
           </Routes>
         </Layout>
       </Router>
     </Provider>
+    </ErrorBoundary>
   );
 }
 
