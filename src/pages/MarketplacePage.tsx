@@ -49,6 +49,14 @@ interface Product {
   inStock: boolean;
   carbonNeutral: boolean;
   recycled: boolean;
+  // Enhanced engagement metrics
+  likes: number;
+  views: number;
+  purchases: number;
+  isLiked: boolean;
+  isWishlisted: boolean;
+  createdAt: string;
+  soldCount: number;
 }
 
 const demoProducts: Product[] = [
@@ -68,6 +76,14 @@ const demoProducts: Product[] = [
     inStock: true,
     carbonNeutral: true,
     recycled: false,
+    // Enhanced engagement metrics
+    likes: 342,
+    views: 2847,
+    purchases: 89,
+    isLiked: false,
+    isWishlisted: false,
+    createdAt: '2024-02-15',
+    soldCount: 234,
   },
   {
     id: '2',
@@ -84,6 +100,14 @@ const demoProducts: Product[] = [
     inStock: true,
     carbonNeutral: true,
     recycled: false,
+    // Enhanced engagement metrics
+    likes: 198,
+    views: 1654,
+    purchases: 45,
+    isLiked: true,
+    isWishlisted: false,
+    createdAt: '2024-02-10',
+    soldCount: 123,
   },
   {
     id: '3',

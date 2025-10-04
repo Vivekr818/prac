@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Typography,
@@ -11,6 +11,23 @@ import {
   Avatar,
   AvatarGroup,
   Fab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  IconButton,
+  Stepper,
+  Step,
+  StepLabel,
+  Paper,
+  Divider,
 } from '@mui/material';
 import {
   LocationOn as LocationIcon,
@@ -18,9 +35,23 @@ import {
   People as PeopleIcon,
   Add as AddIcon,
   Event as EventIcon,
+  Close as CloseIcon,
+  PhotoCamera as PhotoIcon,
+  MyLocation as GPSIcon,
+  CalendarToday as CalendarIcon,
+  Group as GroupIcon,
+  Description as DescriptionIcon,
+  Category as CategoryIcon,
+  Favorite as LikeIcon,
+  FavoriteBorder as LikeOutlineIcon,
+  Comment as CommentIcon,
+  Share as ShareIcon,
+  Visibility as ViewIcon,
+  BookmarkBorder as BookmarkIcon,
+  Bookmark as BookmarkedIcon,
 } from '@mui/icons-material';
 
-// Mock data for events
+// Mock data for events with enhanced engagement metrics
 const mockEvents = [
   {
     id: '1',
@@ -42,6 +73,18 @@ const mockEvents = [
     maxParticipants: 50,
     tags: ['Park Cleanup', 'Community', 'Recycling'],
     status: 'upcoming',
+    // Enhanced engagement metrics
+    likes: 156,
+    comments: 23,
+    shares: 12,
+    views: 1247,
+    bookmarks: 34,
+    isLiked: false,
+    isBookmarked: false,
+    createdAt: '2024-03-01',
+    impactScore: 85,
+    carbonOffset: '2.5 tons CO2',
+    wasteCollected: '150 kg',
   },
   {
     id: '2',
@@ -62,6 +105,18 @@ const mockEvents = [
     maxParticipants: 30,
     tags: ['Beach Cleanup', 'Restoration', 'Marine Life'],
     status: 'upcoming',
+    // Enhanced engagement metrics
+    likes: 89,
+    comments: 15,
+    shares: 8,
+    views: 892,
+    bookmarks: 21,
+    isLiked: true,
+    isBookmarked: false,
+    createdAt: '2024-02-28',
+    impactScore: 92,
+    carbonOffset: '1.8 tons CO2',
+    wasteCollected: '200 kg',
   },
   {
     id: '3',
@@ -84,18 +139,490 @@ const mockEvents = [
     maxParticipants: 40,
     tags: ['Tree Planting', 'Urban Green', 'Air Quality'],
     status: 'upcoming',
+    // Enhanced engagement metrics
+    likes: 203,
+    comments: 31,
+    shares: 18,
+    views: 1456,
+    bookmarks: 45,
+    isLiked: false,
+    isBookmarked: true,
+    createdAt: '2024-02-25',
+    impactScore: 88,
+    carbonOffset: '3.2 tons CO2',
+    wasteCollected: '0 kg',
   },
 ];
 
+interface EventFormData {
+  title: string;
+  description: string;
+  category: string;
+  date: string;
+  time: string;
+  duration: string;
+  location: string;
+  maxParticipants: number;
+  equipmentProvided: boolean;
+  bringOwnEquipment: string;
+  refreshments: boolean;
+  ageRestriction: string;
+  difficultyLevel: string;
+  contactEmail: string;
+  contactPhone: string;
+  specialInstructions: string;
+  tags: string[];
+  photos: File[];
+}
+
+const eventCategories = [
+  'Park Cleanup',
+  'Beach Cleanup',
+  'Tree Planting',
+  'River Restoration',
+  'Wildlife Conservation',
+  'Recycling Drive',
+  'Community Garden',
+  'Environmental Education',
+  'Waste Reduction',
+  'Energy Conservation',
+];
+
+const difficultyLevels = ['Easy', 'Moderate', 'Challenging'];
+const ageRestrictions = ['All Ages', '13+', '16+', '18+'];
+
 export const EventsPage: React.FC = () => {
+  const [hostDialogOpen, setHostDialogOpen] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
+  const [events, setEvents] = useState(mockEvents);
+  const [formData, setFormData] = useState<EventFormData>({
+    title: '',
+    description: '',
+    category: '',
+    date: '',
+    time: '',
+    duration: '',
+    location: '',
+    maxParticipants: 20,
+    equipmentProvided: true,
+    bringOwnEquipment: '',
+    refreshments: false,
+    ageRestriction: 'All Ages',
+    difficultyLevel: 'Easy',
+    contactEmail: '',
+    contactPhone: '',
+    specialInstructions: '',
+    tags: [],
+    photos: [],
+  });
+
+  const steps = ['Basic Info', 'Details & Logistics', 'Contact & Publish'];
+
   const handleJoinEvent = (eventId: string) => {
     console.log('Joining event:', eventId);
     // In a real app, this would dispatch an action to join the event
   };
 
+  const handleLikeEvent = (eventId: string) => {
+    setEvents(prevEvents =>
+      prevEvents.map(event =>
+        event.id === eventId
+          ? {
+              ...event,
+              isLiked: !event.isLiked,
+              likes: event.isLiked ? event.likes - 1 : event.likes + 1,
+            }
+          : event
+      )
+    );
+  };
+
+  const handleBookmarkEvent = (eventId: string) => {
+    setEvents(prevEvents =>
+      prevEvents.map(event =>
+        event.id === eventId
+          ? { ...event, isBookmarked: !event.isBookmarked }
+          : event
+      )
+    );
+  };
+
+  const handleShareEvent = (eventId: string) => {
+    const event = events.find(e => e.id === eventId);
+    if (event) {
+      navigator.clipboard.writeText(`Check out this event: ${event.title}`);
+      // In a real app, this would open a share dialog
+      console.log('Event shared:', event.title);
+    }
+  };
+
   const handleHostEvent = () => {
-    console.log('Opening host event dialog');
-    // In a real app, this would open a dialog or navigate to create event page
+    setHostDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setHostDialogOpen(false);
+    setActiveStep(0);
+    setFormData({
+      title: '',
+      description: '',
+      category: '',
+      date: '',
+      time: '',
+      duration: '',
+      location: '',
+      maxParticipants: 20,
+      equipmentProvided: true,
+      bringOwnEquipment: '',
+      refreshments: false,
+      ageRestriction: 'All Ages',
+      difficultyLevel: 'Easy',
+      contactEmail: '',
+      contactPhone: '',
+      specialInstructions: '',
+      tags: [],
+      photos: [],
+    });
+  };
+
+  const handleInputChange = (field: keyof EventFormData, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleNext = () => {
+    setActiveStep(prev => prev + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep(prev => prev - 1);
+  };
+
+  const handleSubmit = () => {
+    console.log('Creating event:', formData);
+    // In a real app, this would submit the event data
+    handleCloseDialog();
+  };
+
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          handleInputChange('location', `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          alert('Unable to get your location. Please enter it manually.');
+        }
+      );
+    }
+  };
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    handleInputChange('photos', [...formData.photos, ...files].slice(0, 5));
+  };
+
+  const renderStepContent = (step: number) => {
+    switch (step) {
+      case 0:
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <TextField
+              fullWidth
+              label="Event Title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              required
+              placeholder="e.g., Central Park Cleanup Drive"
+            />
+            
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Event Description"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              required
+              placeholder="Describe what participants will do, what to expect, and the environmental impact..."
+            />
+
+            <FormControl fullWidth required>
+              <InputLabel>Event Category</InputLabel>
+              <Select
+                value={formData.category}
+                label="Event Category"
+                onChange={(e) => handleInputChange('category', e.target.value)}
+              >
+                {eventCategories.map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  label="Event Date"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange('date', e.target.value)}
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="time"
+                  label="Start Time"
+                  value={formData.time}
+                  onChange={(e) => handleInputChange('time', e.target.value)}
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Duration"
+                  value={formData.duration}
+                  onChange={(e) => handleInputChange('duration', e.target.value)}
+                  placeholder="e.g., 3 hours"
+                  required
+                />
+              </Grid>
+            </Grid>
+
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <TextField
+                fullWidth
+                label="Location"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                required
+                placeholder="Address or coordinates"
+              />
+              <Button
+                variant="outlined"
+                onClick={getCurrentLocation}
+                sx={{ minWidth: 'auto', px: 2 }}
+              >
+                <GPSIcon />
+              </Button>
+            </Box>
+          </Box>
+        );
+
+      case 1:
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <TextField
+              fullWidth
+              type="number"
+              label="Maximum Participants"
+              value={formData.maxParticipants}
+              onChange={(e) => handleInputChange('maxParticipants', parseInt(e.target.value))}
+              required
+              inputProps={{ min: 1, max: 1000 }}
+            />
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Difficulty Level</InputLabel>
+                  <Select
+                    value={formData.difficultyLevel}
+                    label="Difficulty Level"
+                    onChange={(e) => handleInputChange('difficultyLevel', e.target.value)}
+                  >
+                    {difficultyLevels.map((level) => (
+                      <MenuItem key={level} value={level}>
+                        {level}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Age Restriction</InputLabel>
+                  <Select
+                    value={formData.ageRestriction}
+                    label="Age Restriction"
+                    onChange={(e) => handleInputChange('ageRestriction', e.target.value)}
+                  >
+                    {ageRestrictions.map((age) => (
+                      <MenuItem key={age} value={age}>
+                        {age}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
+            <Box>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.equipmentProvided}
+                    onChange={(e) => handleInputChange('equipmentProvided', e.target.checked)}
+                  />
+                }
+                label="Equipment will be provided"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.refreshments}
+                    onChange={(e) => handleInputChange('refreshments', e.target.checked)}
+                  />
+                }
+                label="Refreshments will be provided"
+              />
+            </Box>
+
+            <TextField
+              fullWidth
+              label="What should participants bring?"
+              value={formData.bringOwnEquipment}
+              onChange={(e) => handleInputChange('bringOwnEquipment', e.target.value)}
+              placeholder="e.g., Water bottle, sunscreen, comfortable shoes..."
+              multiline
+              rows={2}
+            />
+
+            <TextField
+              fullWidth
+              label="Special Instructions"
+              value={formData.specialInstructions}
+              onChange={(e) => handleInputChange('specialInstructions', e.target.value)}
+              placeholder="Any additional information participants should know..."
+              multiline
+              rows={3}
+            />
+
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Event Photos (Optional)
+              </Typography>
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<PhotoIcon />}
+                disabled={formData.photos.length >= 5}
+              >
+                Add Photos ({formData.photos.length}/5)
+                <input
+                  type="file"
+                  hidden
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                />
+              </Button>
+              {formData.photos.length > 0 && (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
+                  {formData.photos.map((photo, index) => (
+                    <Paper key={index} sx={{ p: 1, display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="caption">{photo.name}</Typography>
+                    </Paper>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        );
+
+      case 2:
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Contact Information
+            </Typography>
+            
+            <TextField
+              fullWidth
+              type="email"
+              label="Contact Email"
+              value={formData.contactEmail}
+              onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+              required
+              placeholder="your.email@example.com"
+            />
+
+            <TextField
+              fullWidth
+              label="Contact Phone (Optional)"
+              value={formData.contactPhone}
+              onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+              placeholder="+1 (555) 123-4567"
+            />
+
+            <Divider />
+
+            <Typography variant="h6" gutterBottom>
+              Event Summary
+            </Typography>
+            
+            <Paper sx={{ p: 3, backgroundColor: '#f8f9fa' }}>
+              <Typography variant="h6" gutterBottom>{formData.title}</Typography>
+              <Typography variant="body2" color="text.secondary" paragraph>
+                {formData.description}
+              </Typography>
+              
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <CalendarIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2">
+                      {formData.date} at {formData.time}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <LocationIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2">{formData.location}</Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <GroupIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2">
+                      Max {formData.maxParticipants} participants
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <CategoryIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2">{formData.category}</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+
+              <Box sx={{ mt: 2 }}>
+                <Chip label={formData.difficultyLevel} size="small" sx={{ mr: 1 }} />
+                <Chip label={formData.ageRestriction} size="small" sx={{ mr: 1 }} />
+                {formData.equipmentProvided && (
+                  <Chip label="Equipment Provided" size="small" sx={{ mr: 1 }} />
+                )}
+                {formData.refreshments && (
+                  <Chip label="Refreshments Included" size="small" />
+                )}
+              </Box>
+            </Paper>
+          </Box>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
@@ -129,7 +656,7 @@ export const EventsPage: React.FC = () => {
 
       {/* Events Grid */}
       <Grid container spacing={3}>
-        {mockEvents.map((event) => (
+        {events.map((event) => (
           <Grid item xs={12} md={6} lg={4} key={event.id}>
             <Card 
               sx={{ 
@@ -245,12 +772,92 @@ export const EventsPage: React.FC = () => {
                   ))}
                 </Box>
 
+                {/* Environmental Impact Metrics */}
+                <Box sx={{ mb: 2, p: 2, backgroundColor: '#f8f9fa', borderRadius: 1 }}>
+                  <Typography variant="caption" color="text.secondary" gutterBottom display="block">
+                    Expected Environmental Impact
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4CAF50' }}>
+                        {event.carbonOffset}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        CO₂ Offset
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4CAF50' }}>
+                        {event.wasteCollected}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Waste Collected
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#4CAF50' }}>
+                        {event.impactScore}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Impact Score
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                {/* Engagement Actions */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleLikeEvent(event.id)}
+                      sx={{ color: event.isLiked ? '#f44336' : 'text.secondary' }}
+                    >
+                      {event.isLiked ? <LikeIcon /> : <LikeOutlineIcon />}
+                    </IconButton>
+                    <Typography variant="caption">{event.likes}</Typography>
+
+                    <IconButton size="small" sx={{ color: 'text.secondary', ml: 1 }}>
+                      <CommentIcon />
+                    </IconButton>
+                    <Typography variant="caption">{event.comments}</Typography>
+
+                    <IconButton
+                      size="small"
+                      onClick={() => handleShareEvent(event.id)}
+                      sx={{ color: 'text.secondary', ml: 1 }}
+                    >
+                      <ShareIcon />
+                    </IconButton>
+                    <Typography variant="caption">{event.shares}</Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ViewIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                    <Typography variant="caption" color="text.secondary">
+                      {event.views}
+                    </Typography>
+                    
+                    <IconButton
+                      size="small"
+                      onClick={() => handleBookmarkEvent(event.id)}
+                      sx={{ color: event.isBookmarked ? '#4CAF50' : 'text.secondary' }}
+                    >
+                      {event.isBookmarked ? <BookmarkedIcon /> : <BookmarkIcon />}
+                    </IconButton>
+                  </Box>
+                </Box>
+
                 {/* Join button */}
                 <Button
                   variant="contained"
                   fullWidth
                   onClick={() => handleJoinEvent(event.id)}
                   disabled={event.participantCount >= event.maxParticipants}
+                  sx={{
+                    backgroundColor: '#4CAF50',
+                    '&:hover': { backgroundColor: '#45a049' },
+                  }}
                 >
                   {event.participantCount >= event.maxParticipants ? 'Event Full' : 'Join Event'}
                 </Button>
@@ -275,6 +882,74 @@ export const EventsPage: React.FC = () => {
       >
         <AddIcon />
       </Fab>
+
+      {/* Host Event Dialog */}
+      <Dialog
+        open={hostDialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
+      >
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <EventIcon sx={{ color: '#4CAF50' }} />
+            <Typography variant="h6">Host Environmental Event</Typography>
+          </Box>
+          <IconButton onClick={handleCloseDialog}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ px: 3 }}>
+          {/* Stepper */}
+          <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+
+          {/* Step Content */}
+          {renderStepContent(activeStep)}
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={handleCloseDialog} color="inherit">
+            Cancel
+          </Button>
+          <Box sx={{ flex: '1 1 auto' }} />
+          {activeStep !== 0 && (
+            <Button onClick={handleBack} sx={{ mr: 1 }}>
+              Back
+            </Button>
+          )}
+          {activeStep === steps.length - 1 ? (
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{ backgroundColor: '#4CAF50', '&:hover': { backgroundColor: '#45a049' } }}
+              disabled={!formData.title || !formData.description || !formData.contactEmail}
+            >
+              Create Event
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              sx={{ backgroundColor: '#4CAF50', '&:hover': { backgroundColor: '#45a049' } }}
+              disabled={
+                activeStep === 0 && (!formData.title || !formData.description || !formData.category || !formData.date || !formData.time || !formData.location)
+              }
+            >
+              Next
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
