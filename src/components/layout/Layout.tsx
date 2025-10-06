@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
-import { Header } from './Header';
+import { HeaderSimple as Header } from './HeaderSimple';
 import { BottomNavigation } from './BottomNavigation';
 import { useAppSelector } from '../../store/hooks';
 
